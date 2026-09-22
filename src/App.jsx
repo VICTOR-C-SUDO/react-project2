@@ -1,14 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./Pages/Home";
-import Events from "./Pages/Events";
 import EventDetails from "./pages/EventDetails";
+import Events from "./Pages/Events";
+
 import Registration from "./Pages/Registration";
 import Registrations from "./Pages/Registrations";
 import Favorites from "./Pages/Favorites";
 import AddEvent from "./Pages/AddEvent";
 import EditEvent from "./Pages/EditEvent";
 import NotFound from "./Pages/NotFound";
+
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
