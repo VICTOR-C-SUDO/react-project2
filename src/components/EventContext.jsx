@@ -15,9 +15,7 @@ export const EventProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ==========================================
-  // GET ALL EVENTS
-  // ==========================================
+  
 
   const fetchEvents = async (filters = {}) => {
     try {
@@ -82,10 +80,6 @@ export const EventProvider = ({ children }) => {
     }
   };
 
-  // ==========================================
-  // POST - CREATE EVENT
-  // API expects multipart/form-data
-  // ==========================================
 
   const createEvent = async (eventData) => {
     try {
@@ -93,8 +87,7 @@ export const EventProvider = ({ children }) => {
 
       console.log("CREATING EVENT:", eventData);
 
-      // Create FormData because the API
-      // expects multipart/form-data
+      
       const formData = new FormData();
 
       formData.append("name", eventData.name);
@@ -135,10 +128,7 @@ export const EventProvider = ({ children }) => {
       const response = await fetch(API_URL, {
         method: "POST",
 
-        // IMPORTANT:
-        // Do NOT manually add Content-Type here.
-        // The browser adds multipart/form-data
-        // with the correct boundary automatically.
+       
         headers: {
           Accept: "application/json",
         },
@@ -158,9 +148,7 @@ export const EventProvider = ({ children }) => {
         data
       );
 
-      // ==========================================
-      // HANDLE POST ERROR
-      // ==========================================
+     
 
       if (!response.ok) {
         let errorMessage =
@@ -201,10 +189,7 @@ export const EventProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
 
-      // ==========================================
-      // SUCCESS
-      // ==========================================
-
+      
       console.log(
         "EVENT CREATED SUCCESSFULLY:",
         data
@@ -228,9 +213,7 @@ export const EventProvider = ({ children }) => {
     }
   };
 
-  // ==========================================
-  // PATCH - UPDATE EVENT
-  // ==========================================
+  
 
   const updateEvent = async (
     event_uid,
@@ -339,10 +322,7 @@ export const EventProvider = ({ children }) => {
     }
   };
 
-  // ==========================================
-  // DELETE - DELETE EVENT
-  // ==========================================
-
+  
   const deleteEvent = async (
     event_uid
   ) => {
@@ -376,7 +356,7 @@ export const EventProvider = ({ children }) => {
         try {
           data = await response.json();
         } catch {
-          // DELETE may return an empty response
+         
         }
 
         let errorMessage =
@@ -415,7 +395,7 @@ export const EventProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
 
-      // Remove deleted event
+   
       setEvents((previousEvents) =>
         previousEvents.filter(
           (event) =>
@@ -441,17 +421,13 @@ export const EventProvider = ({ children }) => {
     }
   };
 
-  // ==========================================
-  // FETCH EVENTS WHEN APP STARTS
-  // ==========================================
+ 
 
   useEffect(() => {
     fetchEvents();
   }, []);
 
-  // ==========================================
-  // PROVIDER
-  // ==========================================
+  
 
   return (
     <EventContext.Provider
@@ -470,9 +446,7 @@ export const EventProvider = ({ children }) => {
   );
 };
 
-// ==========================================
-// CUSTOM HOOK
-// ==========================================
+
 
 export const useEvents = () => {
   return useContext(EventContext);

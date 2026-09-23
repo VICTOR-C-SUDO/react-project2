@@ -18,9 +18,7 @@ const Registration = () => {
         phone: "",
     });
 
-    /* ================================
-       GET EVENT
-    ================================ */
+    
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -61,9 +59,7 @@ const Registration = () => {
         }
     }, [id]);
 
-    /* ================================
-       HANDLE INPUT
-    ================================ */
+    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -74,9 +70,6 @@ const Registration = () => {
         }));
     };
 
-    /* ================================
-       SUBMIT REGISTRATION
-    ================================ */
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -125,9 +118,7 @@ const Registration = () => {
         setSubmitted(true);
     };
 
-    /* ================================
-       LOADING
-    ================================ */
+   
 
     if (loading) {
         return (
@@ -143,10 +134,7 @@ const Registration = () => {
         );
     }
 
-    /* ================================
-       ERROR
-    ================================ */
-
+   
     if (error || !event) {
         return (
             <main className="registration-page">
@@ -179,9 +167,7 @@ const Registration = () => {
         );
     }
 
-    /* ================================
-       SUCCESS
-    ================================ */
+   
 
     if (submitted) {
         return (
@@ -234,16 +220,13 @@ const Registration = () => {
         );
     }
 
-    /* ================================
-       REGISTRATION FORM
-    ================================ */
 
     return (
         <main className="registration-page">
 
             <div className="registration-card">
 
-                {/* Heading */}
+               
 
                 <div className="registration-heading">
 
@@ -263,7 +246,7 @@ const Registration = () => {
                 </div>
 
 
-                {/* Event information */}
+                
 
                 <div className="registration-event-preview">
 
@@ -306,14 +289,14 @@ const Registration = () => {
                 </div>
 
 
-                {/* Form */}
+            
 
                 <form
                     className="registration-form"
                     onSubmit={handleSubmit}
                 >
 
-                    {/* Name */}
+                    
 
                     <div className="registration-input-group">
 
@@ -334,7 +317,7 @@ const Registration = () => {
                     </div>
 
 
-                    {/* Email */}
+                    
 
                     <div className="registration-input-group">
 
@@ -355,7 +338,7 @@ const Registration = () => {
                     </div>
 
 
-                    {/* Phone */}
+                
 
                     <div className="registration-input-group">
 
@@ -376,7 +359,7 @@ const Registration = () => {
                     </div>
 
 
-                    {/* Submit */}
+                    
 
                     <button
                         type="submit"
@@ -388,7 +371,7 @@ const Registration = () => {
                 </form>
 
 
-                {/* Back */}
+            
 
                 <Link
                     to={`/events/${event.uid}`}

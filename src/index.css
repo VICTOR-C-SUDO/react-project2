@@ -1117,10 +1117,6 @@ img {
 }
 
 
-/* =========================================
-   SUCCESS MESSAGE
-========================================= */
-
 .form-success {
     margin-bottom: 20px;
     padding: 13px 15px;
@@ -1652,9 +1648,7 @@ img {
         height: 300px;
     }
 }
-/* ================================
-   HOME HERO
-================================ */
+
 
 .home-hero {
     position: relative;
@@ -1676,8 +1670,6 @@ img {
     overflow: hidden;
 }
 
-/* Dark layer over image */
-
 .hero-overlay {
     position: absolute;
 
@@ -1688,7 +1680,7 @@ img {
     z-index: 1;
 }
 
-/* Text */
+
 
 .hero-content {
     position: relative;
@@ -1766,9 +1758,7 @@ img {
 }
 
 
-/* ================================
-   MOBILE
-================================ */
+
 
 @media (max-width: 768px) {
 

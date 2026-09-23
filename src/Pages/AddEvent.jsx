@@ -33,7 +33,7 @@ const AddEvent = () => {
     }));
   };
 
-  // Handle form submission
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -42,7 +42,7 @@ const AddEvent = () => {
       setError("");
       setSuccess(false);
 
-      // Create the object that will be sent to the API
+      
      const eventData = {
     name: formData.name,
     description: formData.description,
@@ -67,14 +67,14 @@ console.log(
 
       setSuccess(true);
 
-      // Go back to Events page
+      
       setTimeout(() => {
         navigate("/events");
       }, 1200);
     } catch (err) {
       console.error("CREATE EVENT ERROR:", err);
 
-      // Convert different API error formats into readable text
+    
       let errorMessage = "Failed to create event.";
 
       if (err?.message) {
@@ -105,7 +105,6 @@ console.log(
           </p>
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="form-error">
             <strong>Unable to create event:</strong>
@@ -113,7 +112,7 @@ console.log(
           </div>
         )}
 
-        {/* Success message */}
+       
         {success && (
           <div className="form-success">
             Event created successfully!
@@ -125,7 +124,7 @@ console.log(
           onSubmit={handleSubmit}
         >
 
-          {/* Event Name */}
+        
           <div className="form-group">
             <label htmlFor="name">
               Event Name
@@ -142,7 +141,7 @@ console.log(
             />
           </div>
 
-          {/* Description */}
+       
           <div className="form-group">
             <label htmlFor="description">
               Description
@@ -159,7 +158,7 @@ console.log(
             />
           </div>
 
-          {/* Category and Status */}
+          
           <div className="form-row">
 
             <div className="form-group">
@@ -261,7 +260,7 @@ console.log(
 
           </div>
 
-          {/* Location */}
+        
           <div className="form-group">
             <label htmlFor="location">
               Location
@@ -278,7 +277,7 @@ console.log(
             />
           </div>
 
-          {/* Organizer */}
+    
           <div className="form-group">
             <label htmlFor="organizer">
               Organizer
@@ -295,7 +294,7 @@ console.log(
             />
           </div>
 
-          {/* Capacity and Price */}
+        
           <div className="form-row">
 
             <div className="form-group">
@@ -334,7 +333,7 @@ console.log(
 
           </div>
 
-          {/* Submit button */}
+       
           <button
             type="submit"
             className="register-submit"
