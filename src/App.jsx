@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./Pages/Home";
-import EventDetails from "./pages/EventDetails";
+import EventContent from "./Pages/EventContent";
 import Events from "./Pages/Events";
 import Registration from "./Pages/Registration";
 import Registrations from "./Pages/Registrations";
@@ -30,7 +30,7 @@ function App() {
 
                     <Route
                         path="/events/:id"
-                        element={<EventDetails />}
+                        element={<EventContent />}
                     />
 
                     <Route

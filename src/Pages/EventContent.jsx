@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 const API_URL =
     "https://event-hub-olive-six.vercel.app/api/v1/events/";
 
-const EventDetails = () => {
+const EventContent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -406,4 +406,4 @@ const EventDetails = () => {
     );
 };
 
-export default EventDetails;
+export default EventContent;
