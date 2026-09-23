@@ -9,8 +9,6 @@ import Favorites from "./Pages/Favorites";
 import AddEvent from "./Pages/AddEvent";
 import EditEvent from "./Pages/EditEvent";
 import NotFound from "./Pages/NotFound";
-
-
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { EventProvider } from "./components/EventContext";
