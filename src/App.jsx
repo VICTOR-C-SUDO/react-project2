@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Home from "./Pages/Home";
+import Home from "./pages/Home";
 import EventDetails from "./pages/EventDetails";
-import Events from "./Pages/Events";
-import Registration from "./Pages/Registration";
+import Events from "./pages/Events";
+import Registration from "./pages/Registration";
 import Registrations from "./pages/Registrations";
-import Favorites from "./Pages/Favorites";
-import AddEvent from "./Pages/AddEvent";
-import EditEvent from "./Pages/EditEvent";
-import NotFound from "./Pages/NotFound";
+import Favorites from "./pages/Favorites";
+import AddEvent from "./pages/AddEvent";
+import EditEvent from "./pages/EditEvent";
+import NotFound from "./pages/NotFound";
 
 
 import Navbar from "./components/Navbar";
