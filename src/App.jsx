@@ -3,9 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
 import EventDetails from "./pages/EventDetails";
 import Events from "./Pages/Events";
-
 import Registration from "./Pages/Registration";
-import Registrations from "./Pages/Registrations";
+import Registrations from "./pages/Registrations";
 import Favorites from "./Pages/Favorites";
 import AddEvent from "./Pages/AddEvent";
 import EditEvent from "./Pages/EditEvent";
