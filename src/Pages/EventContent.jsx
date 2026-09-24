@@ -1,46 +1,64 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEvents } from "../Components/EventContext";
+import "./EventContent.css";
 
 const API_URL =
     "https://event-hub-olive-six.vercel.app/api/v1/events/";
 
-const EventContent = () => {
+function EventContent() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const { deleteEvent } = useEvents();
 
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [deleting, setDeleting] = useState(false);
 
-    // GET ONE EVENT
+    // GET SINGLE EVENT
     useEffect(() => {
         const fetchEvent = async () => {
             try {
                 setLoading(true);
                 setError("");
 
-                console.log("EVENT UID FROM URL:", id);
+                console.log(
+                    "EVENT UID FROM URL:",
+                    id
+                );
 
                 const response = await fetch(
-                    `${API_URL}${id}`,
+                    `${API_URL}${id}?refresh=${Date.now()}`,
                     {
                         method: "GET",
                         headers: {
                             Accept: "application/json",
                         },
+                        cache: "no-store",
                     }
+                );
+
+                console.log(
+                    "EVENT RESPONSE STATUS:",
+                    response.status
+                );
+
+                const data = await response.json();
+
+                console.log(
+                    "FRESH EVENT FROM API:",
+                    data
                 );
 
                 if (!response.ok) {
                     throw new Error(
-                        `Event not found (${response.status})`
+                        Array.isArray(data.detail)
+                            ? JSON.stringify(data.detail)
+                            : data.detail ||
+                              "Event not found"
                     );
                 }
-
-                const data = await response.json();
-
-                console.log("SINGLE EVENT:", data);
 
                 setEvent(data);
             } catch (err) {
@@ -57,66 +75,10 @@ const EventContent = () => {
 
         if (id) {
             fetchEvent();
-        } else {
-            setError("No event ID was provided.");
-            setLoading(false);
         }
     }, [id]);
 
-    // ADD / REMOVE FAVORITE
-    const handleFavorite = () => {
-        if (!event) return;
-
-        const favorites =
-            JSON.parse(
-                localStorage.getItem(
-                    "eventhubFavorites"
-                )
-            ) || [];
-
-        const alreadyFavorite =
-            favorites.some(
-                (favorite) =>
-                    favorite.uid === event.uid
-            );
-
-        if (alreadyFavorite) {
-            const updatedFavorites =
-                favorites.filter(
-                    (favorite) =>
-                        favorite.uid !== event.uid
-                );
-
-            localStorage.setItem(
-                "eventhubFavorites",
-                JSON.stringify(
-                    updatedFavorites
-                )
-            );
-
-            alert(
-                "Event removed from favorites."
-            );
-        } else {
-            const updatedFavorites = [
-                ...favorites,
-                event,
-            ];
-
-            localStorage.setItem(
-                "eventhubFavorites",
-                JSON.stringify(
-                    updatedFavorites
-                )
-            );
-
-            alert(
-                "Event added to favorites."
-            );
-        }
-    };
-
-   
+    // DELETE
     const handleDelete = async () => {
         const confirmed = window.confirm(
             "Are you sure you want to delete this event?"
@@ -127,283 +89,246 @@ const EventContent = () => {
         }
 
         try {
-            setDeleting(true);
+            await deleteEvent(id);
 
-            const response = await fetch(
-                `${API_URL}${id}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        Accept: "application/json",
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(
-                    `Failed to delete event (${response.status})`
-                );
-            }
-
-            alert(
-                "Event deleted successfully."
-            );
-
-            navigate("/events");
+            // Go back to all events immediately
+            navigate("/events", {
+                replace: true,
+            });
         } catch (err) {
             console.error(
-                "DELETE EVENT ERROR:",
+                "DELETE ERROR:",
                 err
             );
-
-            alert(err.message);
-        } finally {
-            setDeleting(false);
         }
     };
 
-    // LOADING
     if (loading) {
         return (
-            <main className="loading-container page-loading">
-                <div className="spinner"></div>
+            <div className="event-loading">
+                Loading event...
+            </div>
+        );
+    }
+
+    if (error || !event) {
+        return (
+            <div className="event-error">
+                <h2>Event Not Found</h2>
 
                 <p>
-                    Loading event...
+                    This event may have been
+                    deleted or no longer exists.
                 </p>
-            </main>
-        );
-    }
 
-    // ERROR
-    if (error) {
-        return (
-            <main className="error-container">
-                <h2>
-                    Event Not Found
-                </h2>
-
-                <p>{error}</p>
-
-                <Link
-                    to="/events"
-                    className="back-button"
-                >
+                <Link to="/events">
                     ← Back to Events
                 </Link>
-            </main>
+            </div>
         );
     }
 
-
-    if (!event) {
-        return (
-            <main className="error-container">
-                <h2>
-                    Event Not Found
-                </h2>
-
-                <Link
-                    to="/events"
-                    className="back-button"
-                >
-                    ← Back to Events
-                </Link>
-            </main>
-        );
-    }
+    const availableSeats =
+        Number(event.capacity || 0) -
+        Number(event.registered || 0);
 
     return (
-        <main className="event-details-page">
+        <main className="event-content-page">
 
-            <div className="event-details-container">
+            {/* BACK */}
+            <Link
+                to="/events"
+                className="event-back"
+            >
+                ← Back to Events
+            </Link>
 
-                {/* EVENT IMAGE */}
+            {/* HERO */}
+            <section className="event-hero">
 
-                {event.images &&
-                event.images.length > 0 ? (
-                    <img
-                        src={event.images[0]}
-                        alt={event.name}
-                        className="event-details-image"
-                    />
-                ) : (
-                    <div className="event-details-placeholder">
-                        ✦
+                <div className="event-badges">
+
+                    <span className="event-category">
+                        {event.category}
+                    </span>
+
+                    <span className="event-status">
+                        {event.status}
+                    </span>
+
+                </div>
+
+                <h1>
+                    {event.name}
+                </h1>
+
+                <p>
+                    {event.description}
+                </p>
+
+            </section>
+
+            {/* MAIN CONTENT */}
+            <div className="event-details-layout">
+
+                {/* LEFT */}
+                <section className="event-main-info">
+
+                    <h2>
+                        Event Information
+                    </h2>
+
+                    <div className="event-info-grid">
+
+                        <div className="event-info-item">
+                            <span>Date</span>
+
+                            <strong>
+                                {event.date
+                                    ? new Date(
+                                          event.date
+                                      ).toLocaleDateString(
+                                          "en-US",
+                                          {
+                                              year: "numeric",
+                                              month: "long",
+                                              day: "numeric",
+                                          }
+                                      )
+                                    : "Not specified"}
+                            </strong>
+                        </div>
+
+                        <div className="event-info-item">
+                            <span>Time</span>
+
+                            <strong>
+                                {event.event_time ||
+                                    "Not specified"}
+                            </strong>
+                        </div>
+
+                        <div className="event-info-item">
+                            <span>Location</span>
+
+                            <strong>
+                                {event.location ||
+                                    "Not specified"}
+                            </strong>
+                        </div>
+
+                        <div className="event-info-item">
+                            <span>Organizer</span>
+
+                            <strong>
+                                {event.organizer ||
+                                    "Not specified"}
+                            </strong>
+                        </div>
+
                     </div>
-                )}
 
-                {/* EVENT CONTENT */}
+                    <div className="event-about">
 
-                <div className="event-details-content">
+                        <h2>
+                            About This Event
+                        </h2>
 
-                    <div className="event-details-heading">
+                        <p>
+                            {event.description}
+                        </p>
 
-                        <span className="event-category">
-                            {event.category}
+                    </div>
+
+                </section>
+
+                {/* RIGHT */}
+                <aside className="event-sidebar">
+
+                    <div className="ticket-card">
+
+                        <span>
+                            Ticket Price
                         </span>
 
-                        <span
-                            className={`event-status ${event.status}`}
-                        >
-                            {event.status}
-                        </span>
-
-                    </div>
-
-                    <h1>
-                        {event.name}
-                    </h1>
-
-                    <p className="event-description">
-                        {event.description ||
-                            "No description available for this event."}
-                    </p>
-
-                    {/* EVENT INFORMATION */}
-
-                    <div className="event-info">
-
-                        <p>
-                            📅{" "}
-                            <strong>
-                                Date:
-                            </strong>{" "}
-                            {event.date
-                                ? new Date(
-                                      event.date
-                                  ).toLocaleDateString(
-                                      undefined,
-                                      {
-                                          year: "numeric",
-                                          month: "long",
-                                          day: "numeric",
-                                      }
-                                  )
-                                : "Date TBA"}
-                        </p>
-
-                        <p>
-                            ⏰{" "}
-                            <strong>
-                                Time:
-                            </strong>{" "}
-                            {event.event_time ||
-                                "Time TBA"}
-                        </p>
-
-                        <p>
-                            📍{" "}
-                            <strong>
-                                Location:
-                            </strong>{" "}
-                            {event.location ||
-                                "Location TBA"}
-                        </p>
-
-                        <p>
-                            👤{" "}
-                            <strong>
-                                Organizer:
-                            </strong>{" "}
-                            {event.organizer ||
-                                "Organizer TBA"}
-                        </p>
-
-                        <p>
-                            🎟️{" "}
-                            <strong>
-                                Capacity:
-                            </strong>{" "}
-                            {event.capacity ??
-                                "N/A"}
-                        </p>
-
-                        <p>
-                            👥{" "}
-                            <strong>
-                                Registered:
-                            </strong>{" "}
-                            {event.registered ??
-                                0}
-                        </p>
-
-                        <p>
-                            💰{" "}
-                            <strong>
-                                Price:
-                            </strong>{" "}
-                            {event.price === 0
+                        <h2>
+                            {Number(event.price || 0) ===
+                            0
                                 ? "Free"
-                                : `₦${event.price}`}
-                        </p>
-
-                        <p>
-                            🔖{" "}
-                            <strong>
-                                Status:
-                            </strong>{" "}
-                            {event.status ||
-                                "N/A"}
-                        </p>
-
-                    </div>
-
-                    {/* ACTION BUTTONS */}
-
-                    <div className="event-details-actions">
-
-                        <Link
-                            to="/events"
-                            className="back-button"
-                        >
-                            ← Back to Events
-                        </Link>
+                                : `₦${Number(
+                                      event.price
+                                  ).toLocaleString()}`}
+                        </h2>
 
                         <Link
                             to={`/register/${event.uid}`}
-                            className="register-button"
+                            className="register-btn"
                         >
-                            Register for Event
+                            Register
                         </Link>
 
-                        <button
-                            type="button"
-                            className="favorite-button"
-                            onClick={
-                                handleFavorite
-                            }
-                        >
-                            ♡ Favorite
-                        </button>
+                    </div>
+
+                    <div className="event-stats">
+
+                        <div>
+                            <span>
+                                Capacity
+                            </span>
+
+                            <strong>
+                                {event.capacity || 0}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Registered
+                            </span>
+
+                            <strong>
+                                {event.registered || 0}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Available
+                            </span>
+
+                            <strong>
+                                {availableSeats}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="event-actions">
 
                         <Link
                             to={`/events/${event.uid}/edit`}
-                            className="edit-button"
+                            className="edit-event-btn"
                         >
                             Edit Event
                         </Link>
 
                         <button
                             type="button"
-                            className="delete-button"
-                            onClick={
-                                handleDelete
-                            }
-                            disabled={deleting}
+                            className="delete-event-btn"
+                            onClick={handleDelete}
                         >
-                            {deleting
-                                ? "Deleting..."
-                                : "Delete Event"}
+                            Delete Event
                         </button>
 
                     </div>
 
-                </div>
+                </aside>
+
             </div>
 
         </main>
     );
-};
+}
 
 export default EventContent;

@@ -1,453 +1,271 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const EventContext = createContext();
 
-const API_URL =
-  "https://event-hub-olive-six.vercel.app/api/v1/events/";
+const API_URL = "https://event-hub-olive-six.vercel.app/api/v1/events/";
 
 export const EventProvider = ({ children }) => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  
-
-  const fetchEvents = async (filters = {}) => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const params = new URLSearchParams();
-
-      if (filters.name) {
-        params.append("name", filters.name);
-      }
-
-      if (filters.organizer) {
-        params.append("organizer", filters.organizer);
-      }
-
-      if (filters.location) {
-        params.append("location", filters.location);
-      }
-
-      if (filters.category) {
-        params.append("category", filters.category);
-      }
-
-      const queryString = params.toString();
-
-      const url = queryString
-        ? `${API_URL}?${queryString}`
-        : API_URL;
-
-      console.log("FETCHING:", url);
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      console.log("GET STATUS:", response.status);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
-      }
-
-      const data = await response.json();
-
-      console.log("RAW API DATA:", data);
-
-      const eventList = Array.isArray(data)
-        ? data
-        : data.events || data.data || [];
-
-      console.log("EVENT LIST:", eventList);
-
-      setEvents(eventList);
-    } catch (err) {
-      console.error("GET ERROR:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const createEvent = async (eventData) => {
-    try {
-      setError("");
-
-      console.log("CREATING EVENT:", eventData);
-
-      
-      const formData = new FormData();
-
-      formData.append("name", eventData.name);
-      formData.append(
-        "description",
-        eventData.description
-      );
-      formData.append(
-        "category",
-        eventData.category
-      );
-      formData.append("date", eventData.date);
-      formData.append(
-        "event_time",
-        eventData.event_time
-      );
-      formData.append(
-        "location",
-        eventData.location
-      );
-      formData.append(
-        "organizer",
-        eventData.organizer
-      );
-
-      // Price is optional in the API
-      formData.append(
-        "price",
-        String(eventData.price || 0)
-      );
-
-      console.log("FORM DATA BEING SENT:");
-
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
-      const response = await fetch(API_URL, {
-        method: "POST",
-
-       
-        headers: {
-          Accept: "application/json",
-        },
-
-        body: formData,
-      });
-
-      console.log(
-        "POST STATUS:",
-        response.status
-      );
-
-      const data = await response.json();
-
-      console.log(
-        "POST RESPONSE:",
-        data
-      );
-
-     
-
-      if (!response.ok) {
-        let errorMessage =
-          "Failed to create event.";
-
-        if (
-          data &&
-          Array.isArray(data.detail)
-        ) {
-          errorMessage = data.detail
-            .map((item) => {
-              const location =
-                Array.isArray(item.loc)
-                  ? item.loc.join(" → ")
-                  : "Unknown field";
-
-              const message =
-                item.msg ||
-                item.message ||
-                item.detail ||
-                "Validation error";
-
-              return `${location}: ${message}`;
-            })
-            .join(" | ");
-        } else if (
-          data &&
-          typeof data === "object"
-        ) {
-          errorMessage =
-            data.message ||
-            data.detail ||
-            JSON.stringify(data);
-        } else {
-          errorMessage = String(data);
-        }
-
-        throw new Error(errorMessage);
-      }
-
-      
-      console.log(
-        "EVENT CREATED SUCCESSFULLY:",
-        data
-      );
-
-      setEvents((previousEvents) => [
-        ...previousEvents,
-        data,
-      ]);
-
-      return data;
-    } catch (err) {
-      console.error(
-        "POST ERROR:",
-        err
-      );
-
-      setError(err.message);
-
-      throw err;
-    }
-  };
-
-  
-
-  const updateEvent = async (
-    event_uid,
-    updateData
-  ) => {
-    try {
-      setError("");
-
-      console.log(
-        "UPDATING EVENT:",
-        event_uid
-      );
-
-      console.log(
-        "UPDATE DATA:",
-        updateData
-      );
-
-      const response = await fetch(
-        `${API_URL}${event_uid}`,
-        {
-          method: "PATCH",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-            Accept: "application/json",
-          },
-
-          body: JSON.stringify(
-            updateData
-          ),
-        }
-      );
-
-      console.log(
-        "PATCH STATUS:",
-        response.status
-      );
-
-      const data = await response.json();
-
-      console.log(
-        "PATCH RESPONSE:",
-        data
-      );
-
-      if (!response.ok) {
-        let errorMessage =
-          "Failed to update event.";
-
-        if (
-          data &&
-          Array.isArray(data.detail)
-        ) {
-          errorMessage = data.detail
-            .map((item) => {
-              const location =
-                Array.isArray(item.loc)
-                  ? item.loc.join(" → ")
-                  : "Unknown field";
-
-              const message =
-                item.msg ||
-                item.message ||
-                item.detail ||
-                "Validation error";
-
-              return `${location}: ${message}`;
-            })
-            .join(" | ");
-        } else if (
-          data &&
-          typeof data === "object"
-        ) {
-          errorMessage =
-            data.message ||
-            data.detail ||
-            JSON.stringify(data);
-        } else {
-          errorMessage = String(data);
-        }
-
-        throw new Error(errorMessage);
-      }
-
-      // Replace updated event
-      setEvents((previousEvents) =>
-        previousEvents.map((event) =>
-          event.uid === event_uid
-            ? data
-            : event
-        )
-      );
-
-      return data;
-    } catch (err) {
-      console.error(
-        "PATCH ERROR:",
-        err
-      );
-
-      setError(err.message);
-
-      throw err;
-    }
-  };
-
-  
-  const deleteEvent = async (
-    event_uid
-  ) => {
-    try {
-      setError("");
-
-      console.log(
-        "DELETING EVENT:",
-        event_uid
-      );
-
-      const response = await fetch(
-        `${API_URL}${event_uid}`,
-        {
-          method: "DELETE",
-
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
-
-      console.log(
-        "DELETE STATUS:",
-        response.status
-      );
-
-      if (!response.ok) {
-        let data = {};
-
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    // GET ALL EVENTS / SEARCH EVENTS
+    const fetchEvents = async (filters = {}) => {
         try {
-          data = await response.json();
-        } catch {
-         
+            setLoading(true);
+            setError("");
+
+            const params = new URLSearchParams();
+
+            if (filters.name) {
+                params.append("name", filters.name);
+            }
+
+            if (filters.organizer) {
+                params.append("organizer", filters.organizer);
+            }
+
+            if (filters.location) {
+                params.append("location", filters.location);
+            }
+
+            if (filters.category) {
+                params.append("category", filters.category);
+            }
+
+            if (filters.status) {
+                params.append("status", filters.status);
+            }
+
+            const query = params.toString();
+
+            const url = query
+                ? `${API_URL}?${query}`
+                : `${API_URL}?refresh=${Date.now()}`;
+
+            console.log("FETCHING:", url);
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
+                cache: "no-store",
+            });
+
+            console.log("GET STATUS:", response.status);
+
+            const data = await response.json();
+
+            console.log("RAW API DATA:", data);
+
+            if (!response.ok) {
+                throw new Error(
+                    Array.isArray(data.detail)
+                        ? JSON.stringify(data.detail)
+                        : data.detail || "Failed to fetch events"
+                );
+            }
+
+            setEvents(data);
+
+            console.log("EVENT LIST:", data);
+
+            return data;
+        } catch (err) {
+            console.error("FETCH EVENTS ERROR:", err);
+            setError(err.message);
+            return [];
+        } finally {
+            setLoading(false);
         }
+    };
 
-        let errorMessage =
-          "Failed to delete event.";
+    // CREATE EVENT
+    const createEvent = async (eventData) => {
+        try {
+            setError("");
 
-        if (
-          data &&
-          Array.isArray(data.detail)
-        ) {
-          errorMessage = data.detail
-            .map((item) => {
-              const location =
-                Array.isArray(item.loc)
-                  ? item.loc.join(" → ")
-                  : "Unknown field";
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(eventData),
+            });
 
-              const message =
-                item.msg ||
-                item.message ||
-                item.detail ||
-                "Validation error";
+            const data = await response.json();
 
-              return `${location}: ${message}`;
-            })
-            .join(" | ");
-        } else if (
-          data &&
-          typeof data === "object"
-        ) {
-          errorMessage =
-            data.message ||
-            data.detail ||
-            JSON.stringify(data);
+            if (!response.ok) {
+                throw new Error(
+                    Array.isArray(data.detail)
+                        ? JSON.stringify(data.detail)
+                        : data.detail || "Failed to create event"
+                );
+            }
+
+            setEvents((previousEvents) => [
+                ...previousEvents,
+                data,
+            ]);
+
+            return data;
+        } catch (err) {
+            console.error("CREATE EVENT ERROR:", err);
+            setError(err.message);
+            throw err;
         }
+    };
 
-        throw new Error(errorMessage);
-      }
+    // UPDATE EVENT
+    const updateEvent = async (event_uid, updateData) => {
+        try {
+            setError("");
 
-   
-      setEvents((previousEvents) =>
-        previousEvents.filter(
-          (event) =>
-            event.uid !== event_uid
-        )
-      );
+            console.log("UPDATING EVENT:", event_uid);
+            console.log("DATA BEING SENT:", updateData);
 
-      console.log(
-        "EVENT DELETED:",
-        event_uid
-      );
+            const formData = new FormData();
 
-      return true;
-    } catch (err) {
-      console.error(
-        "DELETE ERROR:",
-        err
-      );
+            formData.append("name", updateData.name);
+            formData.append("description", updateData.description);
+            formData.append("category", updateData.category);
+            formData.append("date", updateData.date);
+            formData.append("event_time", updateData.event_time);
+            formData.append("location", updateData.location);
+            formData.append("organizer", updateData.organizer);
+            formData.append("capacity", String(updateData.capacity));
+            formData.append("price", String(updateData.price));
+            formData.append("status", updateData.status);
 
-      setError(err.message);
+            const response = await fetch(
+                `${API_URL}${event_uid}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                    body: formData,
+                }
+            );
 
-      throw err;
-    }
-  };
+            console.log(
+                "PATCH RESPONSE STATUS:",
+                response.status
+            );
 
- 
+            const data = await response.json();
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+            console.log("PATCH RESPONSE DATA:", data);
 
-  
+            if (!response.ok) {
+                throw new Error(
+                    Array.isArray(data.detail)
+                        ? JSON.stringify(data.detail)
+                        : data.detail || "Failed to update event"
+                );
+            }
 
-  return (
-    <EventContext.Provider
-      value={{
-        events,
-        loading,
-        error,
-        fetchEvents,
-        createEvent,
-        updateEvent,
-        deleteEvent,
-      }}
-    >
-      {children}
-    </EventContext.Provider>
-  );
+            // Update the event immediately in React state
+            setEvents((previousEvents) =>
+                previousEvents.map((event) =>
+                    event.uid === event_uid
+                        ? data
+                        : event
+                )
+            );
+
+            console.log("UPDATE COMPLETE:", data);
+
+            return data;
+        } catch (err) {
+            console.error("PATCH UPDATE ERROR:", err);
+            setError(err.message);
+            throw err;
+        }
+    };
+
+    // DELETE EVENT
+    const deleteEvent = async (event_uid) => {
+        try {
+            setError("");
+
+            console.log("DELETING EVENT:", event_uid);
+
+            const response = await fetch(
+                `${API_URL}${event_uid}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }
+            );
+
+            console.log(
+                "DELETE STATUS:",
+                response.status
+            );
+
+            if (!response.ok) {
+                const data = await response.json();
+
+                throw new Error(
+                    Array.isArray(data.detail)
+                        ? JSON.stringify(data.detail)
+                        : data.detail || "Failed to delete event"
+                );
+            }
+
+            // Remove deleted event immediately
+            setEvents((previousEvents) =>
+                previousEvents.filter(
+                    (event) => event.uid !== event_uid
+                )
+            );
+
+            console.log(
+                "EVENT DELETED:",
+                event_uid
+            );
+
+            return true;
+        } catch (err) {
+            console.error(
+                "DELETE EVENT ERROR:",
+                err
+            );
+
+            setError(err.message);
+
+            throw err;
+        }
+    };
+
+    // LOAD EVENTS WHEN APP STARTS
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    return (
+        <EventContext.Provider
+            value={{
+                events,
+                loading,
+                error,
+                fetchEvents,
+                createEvent,
+                updateEvent,
+                deleteEvent,
+            }}
+        >
+            {children}
+        </EventContext.Provider>
+    );
 };
 
-
-
+// CUSTOM HOOK
 export const useEvents = () => {
-  return useContext(EventContext);
+    return useContext(EventContext);
 };

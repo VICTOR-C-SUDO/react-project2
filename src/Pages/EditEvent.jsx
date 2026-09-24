@@ -1,24 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useEvents } from "../components/EventContext";
 
 const API_URL =
     "https://event-hub-olive-six.vercel.app/api/v1/events/";
 
-const EditEvent = () => {
+function EditEvent() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { updateEvent } = useEvents();
 
     const [formData, setFormData] = useState({
         name: "",
         description: "",
-        category: "Technology",
+        category: "",
         date: "",
         event_time: "",
         location: "",
         organizer: "",
         capacity: "",
         price: "",
-        status: "upcoming",
+        status: "",
     });
 
     const [loading, setLoading] = useState(true);
@@ -26,56 +28,52 @@ const EditEvent = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
+    // GET ONE EVENT
     useEffect(() => {
-        const loadEvent = async () => {
+        const fetchEvent = async () => {
             try {
-                setLoading(true);
-                setError("");
+                console.log("LOADING EVENT:", id);
 
-                const response =
-                    await fetch(
-                        `${API_URL}${id}`
-                    );
+                const response = await fetch(
+                    `${API_URL}${id}?refresh=${Date.now()}`
+                );
+
+                console.log(
+                    "GET EVENT STATUS:",
+                    response.status
+                );
+
+                const data = await response.json();
+
+                console.log("EVENT DATA:", data);
 
                 if (!response.ok) {
                     throw new Error(
-                        "Failed to load event"
+                        Array.isArray(data.detail)
+                            ? JSON.stringify(data.detail)
+                            : data.detail ||
+                              "Failed to load event"
                     );
                 }
 
-                const event =
-                    await response.json();
-
                 setFormData({
-                    name: event.name || "",
-                    description:
-                        event.description || "",
-                    category:
-                        event.category ||
-                        "Technology",
-                    date: event.date
-                        ? event.date.split("T")[0]
+                    name: data.name || "",
+                    description: data.description || "",
+                    category: data.category || "",
+                    date: data.date
+                        ? data.date.split("T")[0]
                         : "",
-                    event_time:
-                        event.event_time
-                            ? event.event_time.substring(
-                                  0,
-                                  5
-                              )
-                            : "",
-                    location:
-                        event.location || "",
-                    organizer:
-                        event.organizer || "",
-                    capacity:
-                        event.capacity ?? "",
-                    price:
-                        event.price ?? "",
-                    status:
-                        event.status ||
-                        "upcoming",
+                    event_time: data.event_time
+                        ? data.event_time.substring(0, 5)
+                        : "",
+                    location: data.location || "",
+                    organizer: data.organizer || "",
+                    capacity: data.capacity ?? "",
+                    price: data.price ?? "",
+                    status: data.status || "",
                 });
 
+                setLoading(false);
             } catch (err) {
                 console.error(
                     "LOAD EVENT ERROR:",
@@ -83,87 +81,60 @@ const EditEvent = () => {
                 );
 
                 setError(err.message);
-
-            } finally {
                 setLoading(false);
             }
         };
 
-        if (id) {
-            loadEvent();
-        }
+        fetchEvent();
     }, [id]);
 
+    // HANDLE INPUT CHANGES
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value } = e.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value,
+        }));
     };
 
+    // UPDATE EVENT
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        console.log("SAVE BUTTON CLICKED");
+
+        setSaving(true);
+        setError("");
+        setSuccess("");
+
+        const updatedData = {
+            name: formData.name,
+            description: formData.description,
+            category: formData.category,
+            date: formData.date,
+            event_time: formData.event_time,
+            location: formData.location,
+            organizer: formData.organizer,
+            capacity: Number(formData.capacity),
+            price: Number(formData.price),
+            status: formData.status,
+        };
+
+        console.log(
+            "SENDING UPDATE:",
+            updatedData
+        );
+
         try {
-            setSaving(true);
-            setError("");
-            setSuccess("");
-
-            const updatedData = {
-                name: formData.name,
-                description:
-                    formData.description,
-                category:
-                    formData.category,
-                date: formData.date,
-                event_time:
-                    formData.event_time,
-                location:
-                    formData.location,
-                organizer:
-                    formData.organizer,
-                capacity:
-                    Number(
-                        formData.capacity
-                    ),
-                price:
-                    Number(
-                        formData.price
-                    ),
-                status:
-                    formData.status,
-            };
-
-            const response =
-                await fetch(
-                    `${API_URL}${id}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                            Accept:
-                                "application/json",
-                        },
-                        body: JSON.stringify(
-                            updatedData
-                        ),
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.detail ||
-                        "Failed to update event"
-                );
-            }
+            const updatedEvent = await updateEvent(
+                id,
+                updatedData
+            );
 
             console.log(
-                "UPDATED EVENT:",
-                data
+                "UPDATE COMPLETE:",
+                updatedEvent
             );
 
             setSuccess(
@@ -171,19 +142,15 @@ const EditEvent = () => {
             );
 
             setTimeout(() => {
-                navigate(
-                    `/events/${id}`
-                );
+                navigate(`/events/${id}`);
             }, 1000);
-
         } catch (err) {
             console.error(
-                "UPDATE EVENT ERROR:",
+                "UPDATE ERROR:",
                 err
             );
 
             setError(err.message);
-
         } finally {
             setSaving(false);
         }
@@ -191,86 +158,67 @@ const EditEvent = () => {
 
     if (loading) {
         return (
-            <main className="loading-container page-loading">
-                <div className="spinner"></div>
-                <p>Loading event...</p>
-            </main>
-        );
-    }
-
-    if (error && !formData.name) {
-        return (
-            <main className="error-container">
-
-                <h2>
-                    Unable to load event
-                </h2>
-
-                <p>{error}</p>
-
-            </main>
+            <div>
+                <h2>Loading event...</h2>
+            </div>
         );
     }
 
     return (
-        <main className="form-page">
+        <div className="edit-event-page">
 
-            <div className="form-container">
+            <h1>Edit Event</h1>
 
-                <span className="section-label">
-                    UPDATE EVENT
-                </span>
-
-                <h1>
-                    Edit Event
-                </h1>
-
-                <p className="form-intro">
-                    Update the information for
-                    this event.
+            {error && (
+                <p style={{ color: "red" }}>
+                    {error}
                 </p>
+            )}
 
-                <form
-                    className="event-form"
-                    onSubmit={handleSubmit}
-                >
+            {success && (
+                <p style={{ color: "green" }}>
+                    {success}
+                </p>
+            )}
 
-                    <label>
-                        Event Name
-                    </label>
+            <form onSubmit={handleSubmit}>
+
+                {/* NAME */}
+                <div>
+                    <label>Event Name</label>
 
                     <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        required
                     />
+                </div>
 
-                    <label>
-                        Description
-                    </label>
+                {/* DESCRIPTION */}
+                <div>
+                    <label>Description</label>
 
                     <textarea
                         name="description"
-                        value={
-                            formData.description
-                        }
+                        value={formData.description}
                         onChange={handleChange}
-                        required
                     />
+                </div>
 
-                    <label>
-                        Category
-                    </label>
+                {/* CATEGORY */}
+                <div>
+                    <label>Category</label>
 
                     <select
                         name="category"
-                        value={
-                            formData.category
-                        }
+                        value={formData.category}
                         onChange={handleChange}
                     >
+                        <option value="">
+                            Select Category
+                        </option>
+
                         <option value="Technology">
                             Technology
                         </option>
@@ -295,100 +243,93 @@ const EditEvent = () => {
                             Other
                         </option>
                     </select>
+                </div>
 
-                    <label>
-                        Date
-                    </label>
+                {/* DATE */}
+                <div>
+                    <label>Date</label>
 
                     <input
                         type="date"
                         name="date"
                         value={formData.date}
                         onChange={handleChange}
-                        required
                     />
+                </div>
 
-                    <label>
-                        Event Time
-                    </label>
+                {/* TIME */}
+                <div>
+                    <label>Event Time</label>
 
                     <input
                         type="time"
                         name="event_time"
-                        value={
-                            formData.event_time
-                        }
+                        value={formData.event_time}
                         onChange={handleChange}
-                        required
                     />
+                </div>
 
-                    <label>
-                        Location
-                    </label>
+                {/* LOCATION */}
+                <div>
+                    <label>Location</label>
 
                     <input
                         type="text"
                         name="location"
-                        value={
-                            formData.location
-                        }
+                        value={formData.location}
                         onChange={handleChange}
-                        required
                     />
+                </div>
 
-                    <label>
-                        Organizer
-                    </label>
+                {/* ORGANIZER */}
+                <div>
+                    <label>Organizer</label>
 
                     <input
                         type="text"
                         name="organizer"
-                        value={
-                            formData.organizer
-                        }
+                        value={formData.organizer}
                         onChange={handleChange}
-                        required
                     />
+                </div>
 
-                    <label>
-                        Capacity
-                    </label>
+                {/* CAPACITY */}
+                <div>
+                    <label>Capacity</label>
 
                     <input
                         type="number"
                         name="capacity"
-                        value={
-                            formData.capacity
-                        }
+                        value={formData.capacity}
                         onChange={handleChange}
-                        min="1"
-                        required
                     />
+                </div>
 
-                    <label>
-                        Price
-                    </label>
+                {/* PRICE */}
+                <div>
+                    <label>Price</label>
 
                     <input
                         type="number"
                         name="price"
                         value={formData.price}
                         onChange={handleChange}
-                        min="0"
-                        required
                     />
+                </div>
 
-                    <label>
-                        Status
-                    </label>
+                {/* STATUS */}
+                <div>
+                    <label>Status</label>
 
                     <select
                         name="status"
-                        value={
-                            formData.status
-                        }
+                        value={formData.status}
                         onChange={handleChange}
                     >
+                        <option value="">
+                            Select Status
+                        </option>
+
                         <option value="upcoming">
                             Upcoming
                         </option>
@@ -401,35 +342,21 @@ const EditEvent = () => {
                             Completed
                         </option>
                     </select>
+                </div>
 
-                    <button
-                        type="submit"
-                        className="submit-button"
-                        disabled={saving}
-                    >
-                        {saving
-                            ? "Saving..."
-                            : "Save Changes"}
-                    </button>
+                {/* UPDATE BUTTON */}
+                <button
+                    type="submit"
+                    disabled={saving}
+                >
+                    {saving
+                        ? "Updating..."
+                        : "Update Event"}
+                </button>
 
-                </form>
-
-                {success && (
-                    <p className="success-message">
-                        {success}
-                    </p>
-                )}
-
-                {error && (
-                    <p className="error-message">
-                        {error}
-                    </p>
-                )}
-
-            </div>
-
-        </main>
+            </form>
+        </div>
     );
-};
+}
 
 export default EditEvent;

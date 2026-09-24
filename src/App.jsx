@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
 import EventContent from "./Pages/EventContent";
 import Events from "./Pages/Events";
-import Registration from "./Pages/Registration";
+import Register from "./Pages/Register";
 import Registrations from "./Pages/Registrations";
 import Favorites from "./Pages/Favorites";
 import AddEvent from "./Pages/AddEvent";
@@ -40,7 +40,7 @@ function App() {
 
                     <Route
                         path="/register/:id"
-                        element={<Registration />}
+                        element={<Register />}
                     />
 
                     <Route

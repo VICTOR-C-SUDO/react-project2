@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useEvents } from "./EventContext";
+import { useEvents } from "../components/EventContext";
 
 const SearchBar = () => {
     const { fetchEvents } = useEvents();

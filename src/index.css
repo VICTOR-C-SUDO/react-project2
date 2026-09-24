@@ -1,5 +1,315 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
 
+
+* {
+    box-sizing: border-box;
+}
+
+.register-page {
+    min-height: 100vh;
+    background: #f7f7f5;
+    color: #111;
+    font-family: "DM Sans", sans-serif;
+    padding: 80px 7%;
+}
+
+/* BACK LINK */
+
+.register-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 70px;
+    transition: 0.3s;
+}
+
+.register-back:hover {
+    color: #000;
+}
+
+/* MAIN LAYOUT */
+
+.register-container {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 100px;
+    align-items: start;
+}
+
+/* LEFT SIDE */
+
+.register-intro {
+    padding-top: 15px;
+}
+
+.register-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.register-intro h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(48px, 6vw, 78px);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin: 0 0 30px;
+    max-width: 650px;
+}
+
+.register-intro p {
+    color: #666;
+    font-size: 17px;
+    line-height: 1.8;
+    max-width: 520px;
+}
+
+/* EVENT INFORMATION */
+
+.event-summary {
+    margin-top: 65px;
+    padding-top: 30px;
+    border-top: 1px solid #ddd;
+}
+
+.event-summary h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+.event-detail {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 18px 0;
+    border-bottom: 1px solid #e2e2df;
+}
+
+.event-detail span:first-child {
+    color: #888;
+    font-size: 14px;
+}
+
+.event-detail span:last-child {
+    font-size: 15px;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* FORM CARD */
+
+.register-form-wrapper {
+    background: #fff;
+    padding: 55px;
+    border: 1px solid #e5e5e2;
+}
+
+.register-form-wrapper h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 34px;
+    font-weight: 500;
+    margin: 0 0 10px;
+}
+
+.register-form-wrapper > p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+}
+
+/* FORM */
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 17px 16px;
+    border: 1px solid #d8d8d5;
+    background: #fafaf8;
+    font-family: "DM Sans", sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: 0.25s;
+}
+
+.form-group input:focus {
+    border-color: #111;
+    background: #fff;
+}
+
+.form-group input::placeholder {
+    color: #aaa;
+}
+
+/* BUTTON */
+
+.register-button {
+    width: 100%;
+    border: none;
+    background: #111;
+    color: #fff;
+    padding: 18px;
+    margin-top: 8px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.register-button:hover {
+    background: #333;
+}
+
+.register-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* PRICE */
+
+.ticket-info {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid #e5e5e2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ticket-info span:first-child {
+    color: #777;
+    font-size: 14px;
+}
+
+.ticket-price {
+    font-family: "Playfair Display", serif;
+    font-size: 28px;
+}
+
+/* MESSAGES */
+
+.register-success {
+    padding: 18px;
+    background: #eef7ef;
+    color: #28612f;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.register-error {
+    padding: 18px;
+    background: #fff0f0;
+    color: #a52b2b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* LOADING */
+
+.register-loading {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "DM Sans", sans-serif;
+    color: #777;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+    .register-page {
+        padding: 60px 5%;
+    }
+
+    .register-container {
+        grid-template-columns: 1fr;
+        gap: 70px;
+    }
+
+    .register-intro h1 {
+        font-size: 58px;
+    }
+
+    .register-form-wrapper {
+        max-width: 650px;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+    .register-page {
+        padding: 40px 22px;
+    }
+
+    .register-back {
+        margin-bottom: 45px;
+    }
+
+    .register-container {
+        gap: 50px;
+    }
+
+    .register-intro h1 {
+        font-size: 45px;
+        letter-spacing: -1px;
+    }
+
+    .register-intro p {
+        font-size: 15px;
+    }
+
+    .event-summary {
+        margin-top: 45px;
+    }
+
+    .register-form-wrapper {
+        padding: 30px 22px;
+    }
+
+    .register-form-wrapper h2 {
+        font-size: 29px;
+    }
+
+    .event-detail {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .event-detail span:last-child {
+        text-align: left;
+    }
+}
 :root {
     font-family: "DM Sans", sans-serif;
     color: #151515;
@@ -124,6 +434,7 @@ img {
 .hero-content {
     width: min(1200px, 92%);
     margin: auto;
+   
 }
 
 .section-label {
@@ -133,21 +444,26 @@ img {
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 3px;
+   
 }
 
 .hero h1 {
-    max-width: 850px;
+   
     font-family: "Playfair Display", serif;
     font-size: clamp(50px, 8vw, 95px);
-    line-height: 0.98;
+  margin-left: 30px;
     margin-bottom: 28px;
+      line-height: 0.98;
+
 }
 
 .hero p {
-    max-width: 620px;
+
     font-size: 18px;
     line-height: 1.7;
     color: #646464;
+   
+
 }
 
 .hero-buttons {
@@ -290,20 +606,25 @@ img {
 .registrations-page,
 .favorites-page {
     min-height: 700px;
-    padding: 90px 0;
+    padding-left: 50px;
+  
+    padding-top: 50px;
+   
+    
 }
 
 .events-container,
 .page-container {
     width: min(1200px, 92%);
-    margin: auto;
+   
+
 }
 
 .events-heading,
 .page-heading {
     text-align: center;
     max-width: 700px;
-    margin: 0 auto 50px;
+    
 }
 
 .events-heading h1,
@@ -313,6 +634,7 @@ img {
     font-family: "Playfair Display", serif;
     font-size: clamp(45px, 6vw, 70px);
     margin-bottom: 15px;
+   
 }
 
 .events-heading p,
@@ -320,6 +642,8 @@ img {
 .form-intro {
     color: #686868;
     line-height: 1.7;
+     font-family: "Playfair Display", serif;
+    
 }
 
 /* SEARCH */
@@ -328,7 +652,8 @@ img {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr auto auto;
     gap: 10px;
-    margin-bottom: 45px;
+    margin-bottom: 40px;
+    margin-top: 20px;
 }
 
 .search-bar input,
