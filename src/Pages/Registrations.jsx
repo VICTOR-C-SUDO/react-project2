@@ -9,7 +9,7 @@ const Registrations = () => {
         const saved =
             JSON.parse(
                 localStorage.getItem(
-                    "eventhubRegistrations"
+                "eventhubRegistrations"
                 )
             ) || [];
 
