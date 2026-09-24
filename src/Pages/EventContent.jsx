@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useEvents } from "../Components/EventContext";
+import { useEvents } from "../components/EventContext";
 import "./EventContent.css";
 
 const API_URL =
